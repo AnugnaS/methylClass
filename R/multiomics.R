@@ -4414,6 +4414,17 @@ maincalibration <- function(out.path = "calibration/",
 #'  them, also with a tree number of \code{ntrees}. The parameter \code{p} is
 #'  used to control how many top important features are needed to be selected,
 #'  and the default value is 200.
+#' @param feature_sel. A parameter for RF.In the RF 2-step method,the parameter
+#'  \code{feature_sel} when called
+#'  will carry out feature selection with permuted out-of-bag data.
+#'  @param bal_feature_sel A parameter special for RF, to sample 
+#'  permuted in-bag data in a balanced way (majority class dowwnsampled to
+#'  match minimum sample size across all the classes.
+#'  @param imp_replace A parameter special for RF, to sample for 
+#'  feature selection with permuted in-bag data with or without replacement
+#'  @param bal_training A parameter special for RF. To train the final/second RF 
+#'  model on balanced in-bag data by downsampling majority class to match 
+#   the minimum number of samples among all the classes.
 #'@param modelcv For the models of SVM, eSVM, XGBoosting (XGB), elastic net
 #'  (ENet) and eNeural, a hyperparameter search step is performed to find the
 #'  optimal hyperparameters, via cross validation, such as the regularization
@@ -4649,6 +4660,7 @@ maintrain <- function(y.. = NULL,
                       ntrees = 500,
                       p = 200,
                       feature_sel = FALSE,
+                      bal_training = FALSE,
                       bal_feature_sel = FALSE,
                       imp_replace = TRUE,
 
