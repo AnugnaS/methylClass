@@ -563,9 +563,14 @@ rfp <- function(xx, ..., ntree = ntree, mc = mc, seed = 1234){
 
 #Training & tuning function
 
-trainRF <- function(y, betas, ntrees, p, seed, cores){
+trainRF <- function(y, betas, ntrees, p, seed, cores, feature_sel = feature_sel, bal_feature_sel = bal_feature_sel,imp_replace = imp_replace){
 
+  if(feature_sel){
+    
   set.seed(seed)
+
+    if(bal_feature_sel){
+    
   rf.varsel <- rfp(xx = betas,
                    y,
                    mc = cores,
@@ -573,8 +578,18 @@ trainRF <- function(y, betas, ntrees, p, seed, cores){
                    strata = y,
                    sampsize = rep(min(table(y)),length(table(y))),
                    importance = TRUE,
-                   replace = FALSE,
+                   replace = imp_replace,
                    seed = seed)
+
+      } else {
+
+      rf.varsel<-rfp(xx = betas,
+                     y,
+                     mc = cores,
+                     ntree = ntrees,
+                     importance = TRUE,
+                     seed = seed)
+      } 
 
 
   # extract permutation based importance measure
@@ -585,7 +600,16 @@ trainRF <- function(y, betas, ntrees, p, seed, cores){
   betasy <- betas[ , or[1:p]]   # CAVE: p (argument in trainRF) => limits the number of most important variable (importance.perm)
   # betasy = only 100! (p = 100 in MNPrandomForest.R)
 
+
+    } else { 
+
+    betasy <- betas
+    imp.perm<-NULL
+
+    }
+  
   set.seed(seed)
+  
   rf.pred <- randomForest::randomForest(betasy,
                                         y,
                                         ntree = ntrees,
@@ -593,7 +617,7 @@ trainRF <- function(y, betas, ntrees, p, seed, cores){
                                         sampsize = rep(min(table(y)), length(table(y))),
                                         proximity = TRUE,
                                         oob.prox = TRUE,
-                                        importance = TRUE,
+                                        importance = TRUE ,
                                         keep.inbag = TRUE,
                                         do.trace = FALSE)
 
