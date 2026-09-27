@@ -4414,13 +4414,16 @@ maincalibration <- function(out.path = "calibration/",
 #'  them, also with a tree number of \code{ntrees}. The parameter \code{p} is
 #'  used to control how many top important features are needed to be selected,
 #'  and the default value is 200.
-#' @param feature_sel. A parameter for RF.In the RF 2-step method,the parameter
-#'  \code{feature_sel} when called
-#'  will carry out feature selection with permuted out-of-bag data.
-#'  @param bal_feature_sel A parameter special for RF, to sample 
+#' @param feature_sel A parameter for RF.In the RF 2-step method,the parameter
+#'  \code{feature_sel = TRUE} 
+#'  will carry out feature selection (\code{p} features) with permuted out-of-bag 
+#'  data.
+#'  @param bal_feature_sel A parameter special for RF, only used with
+#'  \code{feature_sel = TRUE} to sample 
 #'  permuted in-bag data in a balanced way (majority class dowwnsampled to
 #'  match minimum sample size across all the classes.
-#'  @param imp_replace A parameter special for RF, to sample for 
+#'  @param imp_replace A parameter special for RF used with
+#'  \code{bal_feature_sel = TRUE}, to sample for 
 #'  feature selection with permuted in-bag data with or without replacement
 #'  @param bal_training A parameter special for RF. To train the final/second RF 
 #'  model on balanced in-bag data by downsampling majority class to match 
@@ -4659,9 +4662,9 @@ maintrain <- function(y.. = NULL,
                       #RF
                       ntrees = 500,
                       p = 200,
-                      feature_sel = FALSE,
-                      bal_training = FALSE,
-                      bal_feature_sel = FALSE,
+                      feature_sel = TRUE,
+                      bal_training = TRUE,
+                      bal_feature_sel = TRUE,
                       imp_replace = TRUE,
 
                       #SVM, eSVM, XGBoosting, GLMNET, eNeural
