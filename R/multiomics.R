@@ -4420,14 +4420,14 @@ maincalibration <- function(out.path = "calibration/",
 #'  data.
 #'  @param bal_feature_sel A parameter special for RF, only used with
 #'  \code{feature_sel = TRUE} to sample 
-#'  permuted in-bag data in a balanced way (majority class dowwnsampled to
-#'  match minimum sample size across all the classes.
+#'  permuted in-bag data in a balanced way (majority class downsampled to
+#'  match minimum sample size across all the classes).
 #'  @param imp_replace A parameter special for RF used with
 #'  \code{bal_feature_sel = TRUE}, to sample for 
 #'  feature selection with permuted in-bag data with or without replacement
 #'  @param bal_training A parameter special for RF. To train the final/second RF 
 #'  model on balanced in-bag data by downsampling majority class to match 
-#   the minimum number of samples among all the classes.
+#'  the minimum number of samples among all the classes.
 #'@param modelcv For the models of SVM, eSVM, XGBoosting (XGB), elastic net
 #'  (ENet) and eNeural, a hyperparameter search step is performed to find the
 #'  optimal hyperparameters, via cross validation, such as the regularization
