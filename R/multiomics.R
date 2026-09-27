@@ -4648,6 +4648,9 @@ maintrain <- function(y.. = NULL,
                       #RF
                       ntrees = 500,
                       p = 200,
+                      feature_sel = FALSE,
+                      bal_feature_sel = FALSE,
+                      imp_replace = TRUE,
 
                       #SVM, eSVM, XGBoosting, GLMNET, eNeural
                       modelcv = 5,
