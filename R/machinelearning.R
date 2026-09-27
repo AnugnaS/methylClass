@@ -563,7 +563,7 @@ rfp <- function(xx, ..., ntree = ntree, mc = mc, seed = 1234){
 
 #Training & tuning function
 
-trainRF <- function(y, betas, ntrees, p, seed, cores, feature_sel = feature_sel, bal_feature_sel = bal_feature_sel,imp_replace = imp_replace){
+trainRF <- function(y, betas, ntrees, p, seed, cores, feature_sel = feature_sel, bal_feature_sel = bal_feature_sel, bal_training = bal_training,imp_replace = imp_replace){
 
   if(feature_sel){
     
@@ -607,6 +607,8 @@ trainRF <- function(y, betas, ntrees, p, seed, cores, feature_sel = feature_sel,
     imp.perm<-NULL
 
     }
+
+  if (bal_training){
   
   set.seed(seed)
   
@@ -624,7 +626,29 @@ trainRF <- function(y, betas, ntrees, p, seed, cores, feature_sel = feature_sel,
   res <- list(rf.pred, imp.perm)
 
   return(res)
+    
+} else {
+
+set.seed(seed)
+  
+  rf.pred <- randomForest::randomForest(betasy,
+                                        y,
+                                        ntree = ntrees,
+                                        strata = y,
+                                        proximity = TRUE,
+                                        oob.prox = TRUE,
+                                        importance = TRUE ,
+                                        keep.inbag = TRUE,
+                                        do.trace = FALSE)
+
+  res <- list(rf.pred, imp.perm)
+
+  return(res) 
+
+    }
+
 }
+    
 
 #Calibration####
 
