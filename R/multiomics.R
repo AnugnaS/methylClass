@@ -3162,11 +3162,7 @@ maincv <- function(y.. = NULL,
                         ntrees = ntrees,
                         p = p,
                         seed = seed,
-                        cores = cores,
-                        feature_sel = feature_sel,
-                        bal_feature_sel = bal_feature_sel,
-                        bal_training = bal_training,
-                        imp_replace = imp_replace) 
+                        cores = cores) 
 
         message("Fit tuned RF on: test set",
                 "(n_cases: ", nrow(betas.test), "): ", K, ".", k, " ... @ ",
@@ -4930,7 +4926,11 @@ maintrain <- function(y.. = NULL,
                     ntrees = ntrees,
                     p = p,
                     seed = seed,
-                    cores = cores)
+                    cores = cores,
+                    feature_sel = feature_sel,
+                     bal_feature_sel = bal_feature_sel,
+                     bal_training = bal_training,
+                     imp_replace = imp_replace)
 
     #Calculate Misclassification Errors (ME) on test set
     err <- sum(as.character(rfcv[[1]]$predicted) != as.character(y..))/length(y..)
