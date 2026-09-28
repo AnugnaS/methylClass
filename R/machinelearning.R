@@ -563,7 +563,16 @@ rfp <- function(xx, ..., ntree = ntree, mc = mc, seed = 1234){
 
 #Training & tuning function
 
-trainRF <- function(y, betas, ntrees, p, seed, cores, feature_sel = feature_sel, bal_feature_sel = bal_feature_sel, bal_training = bal_training,imp_replace = imp_replace){
+trainRF <- function(y, 
+                    betas, 
+                    ntrees, 
+                    p, 
+                    seed, 
+                    cores, 
+                    feature_sel = feature_sel, 
+                    bal_feature_sel = bal_feature_sel, 
+                    bal_training = bal_training,
+                    imp_replace = imp_replace){
 
   if(feature_sel){
     
@@ -611,6 +620,8 @@ trainRF <- function(y, betas, ntrees, p, seed, cores, feature_sel = feature_sel,
   if (bal_training){
   
   set.seed(seed)
+
+  if(feature_sel){
   
   rf.pred <- randomForest::randomForest(betasy,
                                         y,
@@ -623,9 +634,24 @@ trainRF <- function(y, betas, ntrees, p, seed, cores, feature_sel = feature_sel,
                                         keep.inbag = TRUE,
                                         do.trace = FALSE)
 
-    if(!feature_sel)
+    } else {
 
-      imp.perm<-randomForest::importance(rf.pred,type =1) #mean decrease accuracy
+   rf.pred <- rfp(xx = betasy,
+                    y,
+                    mc = cores,
+                    ntree = ntrees,
+                    strata = y,
+                    sampsize = rep(min(table(y)), length(table(y))),
+                    proximity = TRUE,
+                    oob.prox = TRUE,
+                    importance = TRUE ,
+                    keep.inbag = TRUE,
+                    do.trace = FALSE)
+    
+
+  imp.perm<-randomForest::importance(rf.pred,type =1) #mean decrease accuracy
+    
+ }
 
   res <- list(rf.pred, imp.perm)
 
@@ -634,6 +660,8 @@ trainRF <- function(y, betas, ntrees, p, seed, cores, feature_sel = feature_sel,
 } else {
 
 set.seed(seed)
+
+    if(feature_sel) {
   
   rf.pred <- randomForest::randomForest(betasy,
                                         y,
@@ -645,9 +673,22 @@ set.seed(seed)
                                         keep.inbag = TRUE,
                                         do.trace = FALSE)
 
-    if(!feature_sel)
+      } else {
+
+    rf.pred <- rfp(xx = betasy,
+                    y,
+                    mc = cores,
+                    ntree = ntrees,
+                    strata = y,
+                    proximity = TRUE,
+                    oob.prox = TRUE,
+                    importance = TRUE ,
+                    keep.inbag = TRUE,
+                    do.trace = FALSE)
 
       imp.perm<-randomForest::importance(rf.pred,type =1) 
+
+      }
 
   res <- list(rf.pred, imp.perm)
 
