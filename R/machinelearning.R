@@ -550,8 +550,9 @@ prescreenfeatures <- function(betasmat,
 
 rfp <- function(xx, ..., ntree = ntree, mc = mc, seed = 1234){
 
+  set.seed(seed, "L'Ecuyer-CMRG") #as in MNP classifier training, originally was being set as the same for all trees. 
   rfwrap <- function(ntree, xx, ...){
-    set.seed(seed, "L'Ecuyer") #as in MNP classifier training
+  
     randomForest::randomForest(x = xx, ntree = ntree, norm.votes = FALSE, ...)
   }
 
