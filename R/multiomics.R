@@ -4417,7 +4417,8 @@ maincalibration <- function(out.path = "calibration/",
 #'@param feature_sel A parameter for RF.In the RF 2-step method,the parameter
 #'  \code{feature_sel = TRUE} 
 #'  will carry out feature selection (\code{p} features) with permuted out-of-bag 
-#'  data.
+#'  data when \code{feature_sel = FALSE}, the RF model is trained with all the
+#'  input probes with parallel computation. 
 #'@param bal_feature_sel A parameter special for RF, only used with
 #'  \code{feature_sel = TRUE} to sample 
 #'  permuted in-bag data in a balanced way (majority class downsampled to
