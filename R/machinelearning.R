@@ -558,7 +558,19 @@ rfp <- function(xx, ..., ntree = ntree, mc = mc, seed = 1234){
 
   rfpar <- mclapply(rep(ceiling(ntree / mc), mc), mc.cores = mc, rfwrap, xx = xx, ...)
 
-  do.call(randomForest::combine, rfpar)
+  rf<-do.call(randomForest::combine, rfpar)
+
+  if (!is.null(rf$votes)) {
+    rs <- rowSums(rf$votes)
+    if (any(rs == 0)) {
+      warning(sum(rs == 0), " sample(s) were never out-of-bag; their votes stay at 0.")
+      rs[rs == 0] <- 1
+    }
+    rf$votes <- rf$votes / rs
+  }
+
+  rf
+} 
 
 }
 
