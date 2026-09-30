@@ -657,7 +657,8 @@ trainRF <- function(y,
                     oob.prox = TRUE,
                     importance = TRUE ,
                     keep.inbag = TRUE,
-                    do.trace = FALSE)
+                    do.trace = FALSE,
+                    seed = seed)
     
 
   imp.perm<-randomForest::importance(rf.pred,type =1) #mean decrease accuracy
@@ -695,7 +696,8 @@ set.seed(seed)
                     oob.prox = TRUE,
                     importance = TRUE ,
                     keep.inbag = TRUE,
-                    do.trace = FALSE)
+                    do.trace = FALSE,
+                    seed = seed)
 
       imp.perm<-randomForest::importance(rf.pred,type =1) 
 
