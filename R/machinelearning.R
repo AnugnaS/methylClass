@@ -572,8 +572,6 @@ rfp <- function(xx, ..., ntree = ntree, mc = mc, seed = 1234){
   rf
 } 
 
-}
-
 #Training & tuning function
 
 trainRF <- function(y, 
