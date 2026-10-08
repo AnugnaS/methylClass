@@ -1143,8 +1143,9 @@ trainXGBOOST_caret_tuner <- function(y,
                                       y = y,
                                       method = "xgbTree",
                                       trControl = xgbTrControl,
-                                      tuneGrid = xgbGrid
-  )
+                                      tuneGrid = xgbGrid,
+                                      nthread = if (allow.parallel) 1L else as.integer(mc.cores)
+  ) 
 
   message("\nResults of caret grid search:")
   print(xgb.Train.caret.res)
