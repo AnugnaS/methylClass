@@ -5481,10 +5481,14 @@ mainpredict <- function(newdat,
     scores <- attr(scores.pred.svm.e1071.obj, "probabilities")
     
   }else if('handle' %in% names(mod[[1]])){
+
+    #newdat for XGB (xgboost v1.7.8.1) has to be xgbD.Matrix instead of a data.frame (source: https://github.com/giuseppec/iml/issues/29)
+
+    newdat_mat <- xgb.DMatrix(data.matrix(newdat), missing = NA)
     
     scores.pred.xgboost.vec.test <- tryCatch({
       predict(object = mod[[1]],
-              newdata = newdat,
+              newdata = newdat_mat,
               ntreelimit = mod[[1]]$best_iteration,
               outputmargin = FALSE)
     }, error = function(err){
@@ -5493,9 +5497,13 @@ mainpredict <- function(newdat,
     
     if(is.null(scores.pred.xgboost.vec.test)){
       library(xgboost)
+      stopifnot("The newer version of xgboost applied by caret is running into errors; need v1.7.8.1" = packageVersion("xgboost") == "1.7.8.1")
+
+      newdat_mat <- xgb.DMatrix(data.matrix(newdat), missing = NA)
+      
       scores.pred.xgboost.vec.test <- predict(object = mod[[1]],
-                                              newdata = newdat,
-                                              ntreelimit = mod[[1]]$best_iteration,
+                                              newdata = newdat_x,
+                                              ntreelimit = mod[[1]]$best_iteration, 
                                               outputmargin = FALSE)
       
     }
