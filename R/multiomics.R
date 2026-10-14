@@ -5502,7 +5502,7 @@ mainpredict <- function(newdat,
       newdat_mat <- xgb.DMatrix(data.matrix(newdat), missing = NA)
       
       scores.pred.xgboost.vec.test <- predict(object = mod[[1]],
-                                              newdata = newdat_x,
+                                              newdata = newdat_mat,
                                               ntreelimit = mod[[1]]$best_iteration, 
                                               outputmargin = FALSE)
       
