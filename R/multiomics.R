@@ -4429,6 +4429,14 @@ maincalibration <- function(out.path = "calibration/",
 #'@param bal_training A parameter special for RF. To train the final/second RF 
 #'  model on balanced in-bag data by downsampling majority class to match 
 #'  the minimum number of samples among all the classes.
+#'@param stratified_bal_group A parameter for RF.In the RF 2-step method,the parameters
+#'  \code{bal_feature_sel & bal_training = TRUE} will perform under-sampling of the majority
+#' class(es). when \code{stratified_bal_group} is fed with a metadata column,
+#' the sampling is proportional to the distribution of the train classes in this metacolumn's groups
+#' in the parent train set. 
+#'  will carry out feature selection (\code{p} features) with permuted out-of-bag 
+#'  data when \code{feature_sel = FALSE}, the RF model is trained with all the
+#'  input probes with parallel computation. 
 #'@param modelcv For the models of SVM, eSVM, XGBoosting (XGB), elastic net
 #'  (ENet) and eNeural, a hyperparameter search step is performed to find the
 #'  optimal hyperparameters, via cross validation, such as the regularization
@@ -4666,6 +4674,7 @@ maintrain <- function(y.. = NULL,
                       feature_sel = TRUE,
                       bal_training = TRUE,
                       bal_feature_sel = TRUE,
+                      stratified_bal_group = NULL,
                       imp_replace = TRUE,
 
                       #SVM, eSVM, XGBoosting, GLMNET, eNeural
@@ -4923,15 +4932,17 @@ maintrain <- function(y.. = NULL,
     message("Start tuning on training set using RF ... @ ", Sys.time(), "\n")
 
     rfcv <- trainRF(y = y..,
-                    betas = betas,
-                    ntrees = ntrees,
-                    p = p,
-                    seed = seed,
-                    cores = cores,
-                    feature_sel = feature_sel,
+                     betas = betas,
+                     ntrees = ntrees,
+                     p = p,
+                     seed = seed,
+                     cores = cores,
+                     feature_sel = feature_sel,
                      bal_feature_sel = bal_feature_sel,
                      bal_training = bal_training,
-                     imp_replace = imp_replace)
+                     stratified_bal_group = stratified_bal_group, 
+                     imp_replace = imp_replace,
+                   )
 
     #Calculate Misclassification Errors (ME) on test set
     err <- sum(as.character(rfcv[[1]]$predicted) != as.character(y..))/length(y..)
