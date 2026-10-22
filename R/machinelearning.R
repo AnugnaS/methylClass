@@ -586,15 +586,12 @@ trainRF <- function(y,
                     bal_training = bal_training, 
                     imp_replace = imp_replace){ 
 
-  if(feature_sel){
-    
-  set.seed(seed)
 
-    if(bal_feature_sel) {
+  if(!is.null(stratified_bal_group)) {
 
-      if(!is.null(stratified_bal_group){
+    y<-as.factor(y)
 
-        strata_grp<-droplevels(interaction( y, stratified_bal_group, sep = "|"))
+     strata_grp<-droplevels(interaction( y, stratified_bal_group, sep = "|"))
 
          tab<-table(strata_grp)
 
@@ -604,7 +601,7 @@ trainRF <- function(y,
 
          sampsize<-integer(length(tab))
 
-         for k in levels(y) {
+         for (k in levels(y)) {
            
            i <- which(cls == k)
            
@@ -615,29 +612,31 @@ trainRF <- function(y,
            }
 
         names(sampsize)<-names(tab)
+
+    strata_samp<-list(strata = strata_grp, sampsize = sampsize)
+  
+  } else {
+ 
+    strata_samp<-list(strata = y, sampsize = rep(min(table(y)),length(table(y))))
+
+    } 
+
+  if(feature_sel){
+    
+  set.seed(seed)
+
+    if(bal_feature_sel) {
     
          rf.varsel <- rfp(xx = betas,
                    y,
                    mc = cores,
                    ntree = ntrees,
-                   strata = strata_grp,
-                   sampsize = sampsize,
+                   strata = strata_samp$strata,
+                   sampsize = strata_samp$sampsize,
                    importance = TRUE,
                    replace = imp_replace,
                    seed = seed) 
-      
-      } else {
-
-
-        rf.varsel <- rfp(xx = betas,
-                   y,
-                   mc = cores,
-                   ntree = ntrees,
-                   strata = y,
-                   sampsize = rep(min(table(y)),length(table(y))),
-                   importance = TRUE,
-                   replace = imp_replace,
-                   seed = seed) } 
+  
   } else {
 
       rf.varsel<-rfp(xx = betas,
@@ -646,168 +645,106 @@ trainRF <- function(y,
                      ntree = ntrees,
                      importance = TRUE,
                      seed = seed)
+      
       } 
-}
 
   # extract permutation based importance measure
   imp.perm <- randomForest::importance(rf.varsel, type = 1)
 
   # variable selection
   or <- order(imp.perm, decreasing = T)
+  
   betasy <- betas[ , or[1:p]]   # CAVE: p (argument in trainRF) => limits the number of most important variable (importance.perm)
   # betasy = only 100! (p = 100 in MNPrandomForest.R)
-  stratified_sampsize <- NULL
-  
-  if(!is.null(strata_grp) && !is.null(sampsize)) {stratified_sampsize<-list(strata_grp = strata_grp, sampsize = sampsize)}
-
+    
     } else { 
 
     betasy <- betas
+    
     imp.perm<-NULL
 
     }
 
+  set.seed(seed) 
+  
   if (bal_training){
   
   set.seed(seed)
 
   if(feature_sel){
-
-    if (!is.null(stratified_bal_group)){
   
   rf.pred <- randomForest::randomForest(betasy,
                                         y,
                                         ntree = ntrees,
-                                        strata = stratified_sampsize$strata_grp,
-                                        sampsize = stratified_sampsize$sampsize,
+                                        strata = strata_samp$strata,
+                                        sampsize = strata_samp$sampsize,
                                         proximity = TRUE,
                                         oob.prox = TRUE,
-                                        importance = TRUE ,
+                                        importance = FALSE,
+                                        replace = imp_replace,
                                         keep.inbag = TRUE,
                                         do.trace = FALSE)
 
-   } else {
+    } else {  
 
-      rf.pred <- randomForest::randomForest(betasy,
-                                        y,
-                                        ntree = ntrees,
-                                        strata = y,
-                                        sampsize = rep(min(table(y)), length(table(y))),
-                                        proximity = TRUE,
-                                        oob.prox = TRUE,
-                                        importance = TRUE ,
-                                        keep.inbag = TRUE,
-                                        do.trace = FALSE)
-
-      }
-
-    } else {
- 
-     if (!is.null(stratified_bal_group)){
-
-    strata_grp<-droplevels(interaction( y, stratified_bal_group, sep = "|"))
-
-         tab<-table(strata_grp)
-
-         cls <- factor(sub("\\|.*$", "", names(tab)), levels = levels(y))
-
-         n_min<-min(table(y)) 
-
-         sampsize<-integer(length(tab))
-
-         for k in levels(y) {
-           
-           i <- which(cls == k)
-           
-           prop <- round(n_min * tab[i]/sum(tab[i]))
-
-           sampsize[i]<-pmin(prop, tab[i]) 
-
-           }
-        
-       names(sampsize)<-names(tab)      
-
-   rf.pred <- rfp(xx = betasy,
+   rf.pred <- randomForest::randomForest(betasy,
                     y,
-                    mc = cores,
                     ntree = ntrees,
-                    strata = strata_grp,
-                    sampsize = sampsize,
+                    strata = strata_samp$strata,
+                    sampsize = strata_samp$sampsize,
                     proximity = TRUE,
                     oob.prox = TRUE,
                     importance = TRUE ,
+                    replace = imp_replace,
                     keep.inbag = TRUE,
                     do.trace = FALSE,
                     seed = seed)
-    
 
-  imp.perm<-randomForest::importance(rf.pred,type =1) #mean decrease accuracy
-    
- } else {
+    imp.perm<-randomForest::importance(rf.pred,type =1) #mean decrease accuracy
 
-         rf.pred <- rfp(xx = betasy,
+    
+ }
+    } else {
+
+     if(feature_sel){
+
+         rf.pred <- randomForest::randomForest(betasy,
                     y,
-                    mc = cores,
-                    ntree = ntrees,
-                    strata = y,
-                    sampsize = rep(min(table(y)), length(table(y))),
+                    ntree = ntrees, 
                     proximity = TRUE,
                     oob.prox = TRUE,
-                    importance = TRUE ,
+                    importance = FALSE,
                     keep.inbag = TRUE,
+                    replace = imp_replace,
                     do.trace = FALSE,
                     seed = seed) 
 
-      imp.perm<-randomForest::importance(rf.pred,type =1) #mean decrease accuracy
-      
+     
     
-    }
+    } else {
 
-  res <- list(rf.pred, imp.perm)
-
-  return(res)
-    
-} else {
-
-set.seed(seed)
-
-    if(feature_sel) {
-  
-  rf.pred <- randomForest::randomForest(betasy,
-                                        y,
-                                        ntree = ntrees,
-                                        strata = y,
-                                        proximity = TRUE,
-                                        oob.prox = TRUE,
-                                        importance = TRUE ,
-                                        keep.inbag = TRUE,
-                                        do.trace = FALSE)
-
-      } else {
-
-    rf.pred <- rfp(xx = betasy,
+        rf.pred <- rfp(xx = betasy,
                     y,
                     mc = cores,
-                    ntree = ntrees,
-                    strata = y,
+                    ntree = ntrees, 
                     proximity = TRUE,
                     oob.prox = TRUE,
                     importance = TRUE ,
                     keep.inbag = TRUE,
+                    replace = imp_replace,
                     do.trace = FALSE,
-                    seed = seed)
+                    seed = seed) 
 
-      imp.perm<-randomForest::importance(rf.pred,type =1) 
+         imp.perm<-randomForest::importance(rf.pred,type =1) #mean decrease accuracy
+       
+       }
 
-      }
+    }
 
   res <- list(rf.pred, imp.perm)
 
   return(res) 
-
-    }
 }
-         }
     
 
 #Calibration####
