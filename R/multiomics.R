@@ -4941,7 +4941,7 @@ maintrain <- function(y.. = NULL,
                      bal_feature_sel = bal_feature_sel,
                      bal_training = bal_training,
                      stratified_bal_group = stratified_bal_group, 
-                     imp_replace = imp_replace,
+                     imp_replace = imp_replace
                    )
 
     #Calculate Misclassification Errors (ME) on test set
