@@ -680,27 +680,27 @@ trainRF <- function(y,
                                         sampsize = strata_samp$sampsize,
                                         proximity = TRUE,
                                         oob.prox = TRUE,
-                                        importance = FALSE,
+                                        importance = TRUE,
                                         replace = imp_replace,
                                         keep.inbag = TRUE,
                                         do.trace = FALSE)
 
     } else {  
 
-   rf.pred <- randomForest::randomForest(betasy,
+   rf.pred <- rfp(xx = betasy,
                     y,
-                    ntree = ntrees,
+                    mc = cores,
+                    ntree = ntrees, 
                     strata = strata_samp$strata,
                     sampsize = strata_samp$sampsize,
                     proximity = TRUE,
                     oob.prox = TRUE,
-                    importance = TRUE ,
-                    replace = imp_replace,
+                    importance = TRUE,
                     keep.inbag = TRUE,
-                    do.trace = FALSE,
+                    replace = imp_replace,
                     seed = seed)
 
-    imp.perm<-randomForest::importance(rf.pred,type =1) #mean decrease accuracy
+imp.perm <- rf.pred$importance[, "MeanDecreaseAccuracy", drop = FALSE]
 
     
  }
@@ -734,7 +734,7 @@ trainRF <- function(y,
                     replace = imp_replace,
                     seed = seed) 
 
-         imp.perm<-randomForest::importance(rf.pred,type =1) #mean decrease accuracy
+        imp.perm <- rf.pred$importance[, "MeanDecreaseAccuracy", drop = FALSE]
        
        }
 
